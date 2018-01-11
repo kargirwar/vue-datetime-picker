@@ -12,7 +12,7 @@
                             th(v-for="day in days") {{day}}
                     tbody
                         tr(v-for="week in weeks")
-                            td(v-for="d in week")
+                            td(v-for="d in week" @click="onDateSelect(d['day'])")
                                 span(v-bind:class="{today: d['today'], 'other-month': d['other-month']}") {{d['day']}}
 
 </template>
@@ -83,6 +83,10 @@ export default {
             m.subtract(1, 'month');
             this.fillCalendar(m.format('MMMM'));
         },
+        onDateSelect: function(day) {
+            console.log(day);
+            this.$emit('dateSelected', day);
+        }
     }
 }
 </script>
@@ -94,5 +98,9 @@ export default {
 
 .other-month {
     color: #ccc;
+}
+
+td {
+    cursor:pointer
 }
 </style>

@@ -1,16 +1,9 @@
 <template lang="pug">
-    .container-fluid
-        b-dropdown(variant='link', size='lg', no-caret='')
-            template(slot='button-content')
-                input.form-control
-            calendar
+    date-time-picker
 </template>
 
 <script>
-import bModal from 'bootstrap-vue/es/components/modal/modal'
-import bButton from 'bootstrap-vue/es/components/button/button';
-import bDropdown from 'bootstrap-vue/es/components/dropdown/dropdown';
-import Calendar from "./Calendar.vue";
+import DateTimePicker from "./DateTimePicker.vue";
 
 export default {
     data: function() {
@@ -18,10 +11,7 @@ export default {
         }
     },
     components: {
-        'b-modal': bModal,
-        'b-btn': bButton,
-        'b-dropdown': bDropdown,
-        'calendar': Calendar
+        'date-time-picker': DateTimePicker
     }
 }
 </script>
