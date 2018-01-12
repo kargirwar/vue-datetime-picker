@@ -1,9 +1,11 @@
 <template lang="pug">
     .calendar-container
         .row
-            .col-sm-2(@click="prevMonth") Prev
+            .col-sm-2(@click="prevMonth")
+                i.fas.fa-angle-left
             .col-sm-8.text-center {{month}} {{year}}
-            .col-sm-2(@click="nextMonth") Next
+            .col-sm-2(@click="nextMonth")
+                i.fas.fa-angle-right
         .row
             .col-sm-12
                 table.table
@@ -96,6 +98,7 @@ export default {
     color: #ccc;
 }
 
+i,
 td {
     cursor:pointer
 }
