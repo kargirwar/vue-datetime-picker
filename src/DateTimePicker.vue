@@ -12,7 +12,7 @@ import Calendar from "./Calendar.vue";
 export default {
     data: function() {
         return {
-            selectedDate: 'mydate'
+            selectedDate: ''
         }
     },
     components: {

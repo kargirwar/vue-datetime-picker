@@ -2,7 +2,7 @@
     .calendar-container
         .row
             .col-sm-2(@click="prevMonth") Prev
-            .col-sm-8.text-center {{month}}
+            .col-sm-8.text-center {{month}} {{year}}
             .col-sm-2(@click="nextMonth") Next
         .row
             .col-sm-12
@@ -29,23 +29,18 @@ export default {
             weeks: [],
             isActive: false,
             month: '',
+            year: '',
             days: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
         }
     },
     created() {
-        var m = Moment().month(this.month);
-        this.fillCalendar(m.format('MMMM'));
+        var m = Moment().clone();
+        this.fillCalendar(m);
     },
     methods: {
-        fillCalendar: function(month) {
-            var m = Moment().clone();
-            var currMonth = month;
-
-            if (month) {
-                m = m.month(month).clone();
-            }
-
+        fillCalendar: function(m) {
             this.month = m.format('MMM');
+            this.year = m.format('Y');
             this.weeks = [];
             m = m.startOf('month').startOf('week').clone();
 
@@ -60,7 +55,7 @@ export default {
                 var week = []
                 for (var j = 0; j < COLUMNS; j++) {
                     isToday = (thisDay == m.format('D') && thisMonth == m.format('M')) ? true : false;
-                    isOtherMonth = (currMonth != m.format('MMMM')) ? true : false;
+                    isOtherMonth = (this.month != m.format('MMM')) ? true : false;
 
                     week.push({
                         'day': m.format('D'),
@@ -74,18 +69,19 @@ export default {
             }
         },
         nextMonth: function() {
-            var m = Moment().month(this.month);
+            var m = Moment().clone();
+            m.month(this.month);
             m.add(1, 'month');
-            this.fillCalendar(m.format('MMMM'));
+            this.fillCalendar(m);
         },
         prevMonth: function() {
-            var m = Moment().month(this.month);
+            var m = Moment().clone();
+            m.month(this.month);
             m.subtract(1, 'month');
-            this.fillCalendar(m.format('MMMM'));
+            this.fillCalendar(m);
         },
         onDateSelect: function(day) {
-            console.log(day);
-            this.$emit('dateSelected', day);
+            this.$emit('dateSelected', day + '-' + this.month + '-' + this.year);
         }
     }
 }
