@@ -27,8 +27,7 @@ const COLUMNS = 7;
 
 export default {
     props: {
-        'month': String,
-        'year': String,
+        'date': Object,
         'daterange': Boolean,
         'prev': Boolean,
         'next': Boolean
@@ -39,14 +38,13 @@ export default {
             isActive: false,
             currMonth: '',
             currYear: '',
-            days: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+            days: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+            dt: {}
         }
     },
     created() {
-        console.log("m: " + this.month + " y: " + this.year);
-        var m = Moment().clone();
-        m.year(this.year).month(this.month);
-        this.fillCalendar(m);
+        this.dt = this.date;
+        this.fillCalendar(Moment(this.dt));
     },
     methods: {
         fillCalendar: function(m) {
@@ -84,29 +82,32 @@ export default {
             }
         },
         nextMonth: function() {
-            var m = Moment().clone();
-            m.year(this.currYear).month(this.currMonth);
+            var m = Moment(this.dt);
             m.add(1, 'month');
+            this.dt = m.toObject();
             this.fillCalendar(m);
-            this.$emit('nextMonth', this.currMonth);
+            this.$emit('nextMonth', this.dt);
         },
         prevMonth: function() {
-            var m = Moment().clone();
-            m.year(this.currYear).month(this.currMonth);
+            var m = Moment(this.dt);
             m.subtract(1, 'month');
+            this.dt = m.toObject();
             this.fillCalendar(m);
-            this.$emit('prevMonth', this.currMonth);
+            this.$emit('prevMonth', this.dt);
         },
         onDateSelect: function(day) {
             this.$emit('dateSelected', day + '-' + this.currMonth + '-' + this.currYear);
         }
     },
     watch: {
-        month: function(oldMonth, newMonth) {
-            console.log("month changed");
-            var m = Moment().clone();
-            m.year(this.year).month(this.month);
-            this.fillCalendar(m);
+        date: function(n, o) {
+            if (Moment(n).isSame(Moment(this.dt))) {
+                return;
+            }
+            console.log('old date: ' + o.months + '-' + o.years);
+            console.log('new date: ' + n.months + '-' + n.years);
+            this.dt = Moment(n).toObject();;
+            this.fillCalendar(Moment(this.dt));
         }
     }
 }

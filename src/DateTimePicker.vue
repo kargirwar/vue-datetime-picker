@@ -9,10 +9,8 @@
                     .col-sm-6
                         calendar(
                             v-on:dateSelected="onDate1Select"
-                            v-on:nextMonth="onNextMonth"
                             v-on:prevMonth="onPrevMonth"
-                            :month="date1Month"
-                            :year="date1Year"
+                            :date="dt1"
                             :prev="daterange"
                             :next="!daterange"
                             )
@@ -20,9 +18,7 @@
                         calendar(
                             v-on:dateSelected="onDate2Select"
                             v-on:nextMonth="onNextMonth"
-                            v-on:prevMonth="onPrevMonth"
-                            :month="date2Month"
-                            :year="date2Year"
+                            :date="dt2"
                             :daterange="daterange"
                             :prev="!daterange"
                             :next="daterange"
@@ -31,9 +27,8 @@
                     .col-sm-12
                         calendar(
                             v-on:dateSelected="onDateSelect"
-                            :month="date1Month"
-                            :year="date1Year"
                             :daterange="daterange"
+                            :date="dt"
                             :prev="show"
                             :next="show"
                             )
@@ -44,14 +39,18 @@ import Calendar from "./Calendar.vue";
 import Moment from 'moment';
 
 export default {
+    props: {
+        daterange: {
+            type: Boolean,
+            required: true
+        }
+    },
     data: function() {
         return {
             selectedDate: '',
-            date1Month: '',
-            date1Year: '',
-            date2Month: '',
-            date2Year: '',
-            daterange: true,
+            dt1: {},
+            dt2: {},
+            dt: {},
             show: true,
         }
     },
@@ -77,25 +76,33 @@ export default {
             //close the dropdown
             this.$refs.input.click();
         },
-        onPrevMonth: function() {
-            console.log('prevMonth');
-            this.date2Month = "Mar"; 
-            this.date2Year = "2019"; 
+        onPrevMonth: function(dt) {
+            this.dt1 = dt;
+            //bring back dt2 by a month
+            var m = Moment(this.dt2);
+            console.log("onPrevMonth: b " + this.dt2.months + "-" + this.dt2.years);
+            m.subtract(1, 'month');
+            this.dt2 = m.toObject();
+            console.log("onPrevMonth: a " + this.dt2.months + "-" + this.dt2.years);
         },
-        onNextMonth: function() {
-            console.log('nextMonth');
-            this.date1Month = "Jan"; 
-            this.date1Year = "2019"; 
+        onNextMonth: function(dt) {
+            this.dt2 = dt;
+            //advance dt1 by a month
+            var m = Moment(this.dt1);
+            m.add(1, 'month');
+            this.dt1 = m.toObject();
         }
     },
     created: function() {
-        //two calendars, this and next month
-        var m = Moment().clone();
-        this.date1Month = m.format('MMM');
-        this.date1Year = m.format('Y');
-        m = m.add(1, "month");
-        this.date2Month = m.format('MMM');
-        this.date2Year = m.format('Y');
+        if (this.daterange) {
+            //two calendars, this and next month
+            var m = Moment().clone();
+            this.dt1 = m.toObject();
+            this.dt2 = m.add(1, 'month').toObject();
+            return;
+        }
+
+        this.dt = Moment().clone().toObject();
     }
 }
 </script>

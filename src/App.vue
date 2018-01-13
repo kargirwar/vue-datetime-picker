@@ -3,7 +3,7 @@
         .row
             .col-sm-12
                 //TODO:date-time-picker should fill the container. Does not work at this time
-                date-time-picker
+                date-time-picker(:daterange="daterange")
 </template>
 
 <script>
@@ -12,6 +12,7 @@ import DateTimePicker from "./DateTimePicker.vue";
 export default {
     data: function() {
         return {
+            daterange: true
         }
     },
     components: {
