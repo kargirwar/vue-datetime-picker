@@ -1,8 +1,9 @@
 <template lang="pug">
-    .container-fluid
+    .datepicker-container
         b-dropdown(variant='link', size='lg', no-caret='')
             template(slot='button-content')
-                input.form-control(:value="selectedDate")
+                .col-sm-12
+                    input.form-control(:value="selectedDate" ref="input")
             calendar(v-on:dateSelected="onDateSelect")
 </template>
 
@@ -19,13 +20,15 @@ export default {
         'calendar': Calendar
     },
     methods: {
-        onDateSelect: function(data) {
-            console.log("onDateSelect:" + data);
-            this.selectedDate = data;
+        onDateSelect: function(date) {
+            console.log("onDateSelect:" + date);
+            this.selectedDate = date;
+            //close the dropdown
+            this.$refs.input.click();
         }
     }
 }
 </script>
 
-<style>
+<style scoped>
 </style>

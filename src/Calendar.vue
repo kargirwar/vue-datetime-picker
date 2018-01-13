@@ -48,6 +48,7 @@ export default {
 
             var thisDay = Moment().format('D');
             var thisMonth = Moment().format('M');
+            var thisYear = Moment().format('Y');
             var isToday = false;
 
             var isOtherMonth = false;
@@ -56,7 +57,10 @@ export default {
             for (var i = 0; i < ROWS; i++) {
                 var week = []
                 for (var j = 0; j < COLUMNS; j++) {
-                    isToday = (thisDay == m.format('D') && thisMonth == m.format('M')) ? true : false;
+                    isToday = (
+                        thisDay == m.format('D') &&
+                        thisMonth == m.format('M') &&
+                        thisYear == m.format('Y')) ? true : false;
                     isOtherMonth = (this.month != m.format('MMM')) ? true : false;
 
                     week.push({
@@ -72,13 +76,13 @@ export default {
         },
         nextMonth: function() {
             var m = Moment().clone();
-            m.month(this.month);
+            m.year(this.year).month(this.month);
             m.add(1, 'month');
             this.fillCalendar(m);
         },
         prevMonth: function() {
             var m = Moment().clone();
-            m.month(this.month);
+            m.year(this.year).month(this.month);
             m.subtract(1, 'month');
             this.fillCalendar(m);
         },

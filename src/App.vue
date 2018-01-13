@@ -1,5 +1,9 @@
 <template lang="pug">
-    date-time-picker
+    .container-fluid
+        .row
+            .col-sm-12
+                //TODO:date-time-picker should fill the container. Does not work at this time
+                date-time-picker
 </template>
 
 <script>
