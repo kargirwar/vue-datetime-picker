@@ -14,13 +14,17 @@
                             th(v-for="day in days") {{day}}
                     tbody
                         tr(v-for="week in weeks")
-                            td(v-for="d in week" @click="onDateSelect(d['day'])")
-                                span(v-bind:class="{today: d['today'], 'other-month': d['other-month']}") {{d['day']}}
+                            td(
+                                v-bind:class="d.style"
+                                v-for="d in week"
+                                @click="onSelect(d)"
+                                @mouseover="onMouseOver(d)"
+                                @mouseleave="onMouseLeave(d)")
+                                    span {{d.moment.date}}
 
 </template>
 
 <script>
-import bTable from 'bootstrap-vue/es/components/table';
 import Moment from 'moment';
 const ROWS = 6;
 const COLUMNS = 7;
@@ -36,6 +40,7 @@ export default {
         return {
             weeks: [],
             isActive: false,
+            selectedDate: {},
             currMonth: '',
             currYear: '',
             days: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
@@ -53,27 +58,26 @@ export default {
             this.weeks = [];
             m = m.startOf('month').startOf('week').clone();
 
-            var thisDay = Moment().format('D');
-            var thisMonth = Moment().format('M');
-            var thisYear = Moment().format('Y');
             var isToday = false;
-
             var isOtherMonth = false;
+            var isSelected = false;
 
             //we want a 7x7 grid starting from the sunday of the week for the 1st of month
             for (var i = 0; i < ROWS; i++) {
                 var week = []
                 for (var j = 0; j < COLUMNS; j++) {
-                    isToday = (
-                        thisDay == m.format('D') &&
-                        thisMonth == m.format('M') &&
-                        thisYear == m.format('Y')) ? true : false;
-                    isOtherMonth = (this.currMonth != m.format('MMM')) ? true : false;
+                    isToday = Moment().isSame(m, 'day');
+                    isOtherMonth = m.isSame(this.dt, 'month') ? false : true;
+                    isSelected = m.isSame(this.selectedDate) ? true : false;;
 
                     week.push({
-                        'day': m.format('D'),
-                        'today': isToday,
-                        'other-month': isOtherMonth
+                        moment: m.toObject(),
+                        style: {
+                            'today': isToday,
+                            'other-month': isOtherMonth,
+                            'selected': isSelected,
+                            'range': false
+                        }
                     });
                     m.add(1, 'days');
                 }
@@ -95,8 +99,35 @@ export default {
             this.fillCalendar(m);
             this.$emit('prevMonth', this.dt);
         },
-        onDateSelect: function(day) {
-            this.$emit('dateSelected', day + '-' + this.currMonth + '-' + this.currYear);
+        onSelect: function(d) {
+            this.unSelectOthers(); 
+            //select this
+            d.style.selected = true;
+            this.selectedDate = d.moment;
+            this.$emit('dateSelected', d.moment);
+        },
+        unSelectOthers: function() {
+            for (var i = 0; i < this.weeks.length; i++) {
+                for (var j = 0; j < this.weeks[i].length; j++) {
+                    this.weeks[i][j].style.selected = false;
+                }
+            }
+        },
+        onMouseOver: function(d) {
+            //apply range style to all intervening days
+            for (var i = 0; i < this.weeks.length; i++) {
+                for (var j = 0; j < this.weeks[i].length; j++) {
+                    var o = this.weeks[i][j];
+                    if (Moment(o.moment).isAfter(this.selectedDate) &&
+                        Moment(o.moment).isBefore(d.moment)) {
+                        o.style.range = true;
+                    } else {
+                        o.style.range = false;
+                    }
+                }
+            }
+        },
+        onMouseLeave: function(d) {
         }
     },
     watch: {
@@ -125,5 +156,16 @@ export default {
 i,
 td {
     cursor:pointer;
+}
+
+.selected {
+    background: #357ebd;
+    color:#fff
+}
+td:hover {
+    background: #eee;
+}
+.range {
+    background: #ebf4f8;
 }
 </style>

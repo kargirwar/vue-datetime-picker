@@ -58,23 +58,14 @@ export default {
         'calendar': Calendar
     },
     methods: {
-        onDateSelect: function(date) {
-            console.log("onDateSelect:" + date);
-            this.selectedDate = date;
+        onDateSelect: function(m) {
+            this.selectedDate = Moment(m).format('Y-MM-DD');
             //close the dropdown
             this.$refs.input.click();
         },
         onDate1Select: function(date) {
-            console.log("onDateSelect:" + date);
-            this.selectedDate = date;
-            //close the dropdown
-            this.$refs.input.click();
         },
         onDate2Select: function(date) {
-            console.log("onDateSelect:" + date);
-            this.selectedDate = date;
-            //close the dropdown
-            this.$refs.input.click();
         },
         onPrevMonth: function(dt) {
             this.dt1 = dt;
