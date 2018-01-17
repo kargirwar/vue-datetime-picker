@@ -34,7 +34,8 @@ export default {
         'date': Object,
         'monthYear': Object,
         'prev': Boolean,
-        'next': Boolean
+        'next': Boolean,
+        'hover': Object
     },
     data: function() {
         return {
@@ -52,7 +53,6 @@ export default {
     },
     methods: {
         fillCalendar: function(m) {
-            console.log("sd: " + JSON.stringify(this.selectedDate));
             this.weeks = [];
             m = m.startOf('month').startOf('week').clone();
 
@@ -112,36 +112,19 @@ export default {
             }
         },
         onMouseOver: function(d) {
-            //apply range style to all intervening days
-            for (var i = 0; i < this.weeks.length; i++) {
-                for (var j = 0; j < this.weeks[i].length; j++) {
-                    var o = this.weeks[i][j];
-                    if (Moment(o.moment).isAfter(this.dt) &&
-                        Moment(o.moment).isBefore(d.moment)) {
-                        o.style.range = true;
-                    } else {
-                        o.style.range = false;
-                    }
-                }
-            }
+            this.$emit('hover', d.moment);
         },
         onMouseLeave: function(d) {
         }
     },
     watch: {
         monthYear: function(n, o) {
-            if (Moment(n).isSame(Moment(o))) {
-                console.log('no-op');
-                return;
-            }
             this.mY = Moment(n).toObject();;
             this.fillCalendar(Moment(this.mY));
         },
         date: function(n, o) {
-            if (Moment(n).isSame(Moment(o))) {
-                console.log('no-op');
-                return;
-            }
+            this.dt = n;
+            console.log("new date: " + n.date + '-' + n.years);
 
             //update selected date and range formatting
             for (var i = 0; i < this.weeks.length; i++) {
@@ -154,6 +137,33 @@ export default {
                     }
 
                     o.style.range = false;
+                }
+            }
+        },
+
+        hover: function(n, o) {
+            //if selected date is in next month we don't show the range style
+            if (Moment(this.dt).isAfter(this.monthYear, 'month')) {
+                console.log('hiding');
+                for (var i = 0; i < this.weeks.length; i++) {
+                    for (var j = 0; j < this.weeks[i].length; j++) {
+                        var o = this.weeks[i][j];
+                        o.style.range = false;
+                    }
+                }
+                return;
+            }
+            //apply range style to all intervening days
+            console.log('hover');
+            for (var i = 0; i < this.weeks.length; i++) {
+                for (var j = 0; j < this.weeks[i].length; j++) {
+                    var o = this.weeks[i][j];
+                    if (Moment(o.moment).isAfter(this.dt) &&
+                        Moment(o.moment).isBefore(n) && Moment(o.moment).isSame(this.mY, 'month')) {
+                        o.style.range = true;
+                    } else {
+                        o.style.range = false;
+                    }
                 }
             }
         }

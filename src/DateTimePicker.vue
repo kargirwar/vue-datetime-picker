@@ -10,6 +10,8 @@
                         calendar(
                                 v-on:dateSelected="onDate1Select"
                                 v-on:prevMonth="onPrevMonth"
+                                v-on:hover="onHover"
+                                :hover="hd"
                                 :date="dt1"
                                 :monthYear="mY1"
                                 :prev="daterange"
@@ -19,6 +21,8 @@
                         calendar(
                                 v-on:dateSelected="onDate2Select"
                                 v-on:nextMonth="onNextMonth"
+                                v-on:hover="onHover"
+                                :hover="hd"
                                 :date="dt2"
                                 :monthYear="mY2"
                                 :prev="!daterange"
@@ -55,6 +59,7 @@ export default {
             dt1: {},
             dt2: {},
             dt: {},
+            hd: {},
             show: true,
         }
     },
@@ -69,11 +74,13 @@ export default {
         },
         onDate1Select: function(dt) {
             //copy to next month
+            this.dt1 = dt;
             this.dt2 = dt;
         },
         onDate2Select: function(dt) {
             //copy to prev month
             this.dt1 = dt;
+            this.dt2 = dt;
         },
         onPrevMonth: function(mY) {
             this.mY1 = mY;
@@ -89,6 +96,9 @@ export default {
             var m = Moment(this.mY1);
             m.add(1, 'month');
             this.mY1 = m.toObject();
+        },
+        onHover: function(hd) {
+            this.hd = hd;
         }
     },
     created: function() {
@@ -96,9 +106,7 @@ export default {
             //two calendars, this and next month
             var m = Moment().clone();
             this.mY1 = m.toObject();
-            //this.dt1 = m.toObject();
             this.mY2 = m.add(1, 'month').toObject();
-            //this.dt2 = this.mY2;
             return;
         }
 
