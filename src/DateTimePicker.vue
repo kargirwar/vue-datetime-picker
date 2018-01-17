@@ -7,12 +7,17 @@
             .container-fluid
                 .row(v-if="daterange")
                     .col-sm-6
+                        input.form-control(:value="date1")
+                    .col-sm-6
+                        input.form-control(:value="date2")
+                .row(v-if="daterange")
+                    .col-sm-6
                         calendar(
                                 v-on:dateSelected="onDate1Select"
                                 v-on:prevMonth="onPrevMonth"
                                 v-on:hover="onHover"
                                 :hover="hd"
-                                :date="dt1"
+                                :date="dt"
                                 :monthYear="mY1"
                                 :prev="daterange"
                                 :next="!daterange"
@@ -23,7 +28,7 @@
                                 v-on:nextMonth="onNextMonth"
                                 v-on:hover="onHover"
                                 :hover="hd"
-                                :date="dt2"
+                                :date="dt"
                                 :monthYear="mY2"
                                 :prev="!daterange"
                                 :next="daterange"
@@ -83,12 +88,12 @@ export default {
         onDate1Select: function(dt) {
             //copy to next month
             this.dt1 = dt;
-            this.dt2 = dt;
+            this.dt = dt;
         },
         onDate2Select: function(dt) {
             //copy to prev month
-            this.dt1 = dt;
             this.dt2 = dt;
+            this.dt = dt;
         },
         onPrevMonth: function(mY) {
             this.mY1 = mY;
@@ -107,6 +112,14 @@ export default {
         },
         onHover: function(hd) {
             this.hd = hd;
+        }
+    },
+    computed: {
+        date1: function() {
+            return Moment(this.dt1).format('D/MMM/Y');
+        },
+        date2: function() {
+            return Moment(this.dt2).format('D/MMM/Y');
         }
     },
     created: function() {

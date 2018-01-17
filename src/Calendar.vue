@@ -114,8 +114,8 @@ export default {
         getStyle: function(m) {
             var style = {};
             if ((Moment(m).isSame(this.dt1) ||
-            Moment(m).isSame(this.dt2)) &&
-            (Moment(m).isSame(this.mY, 'month'))) {
+                Moment(m).isSame(this.dt2)) &&
+                (Moment(m).isSame(this.mY, 'month'))) {
                 style.selected = true;
             } else {
                 style.selected = false;
@@ -123,11 +123,17 @@ export default {
 
             //add range classes
             if (Moment(m).isAfter(this.dt1) &&
-            Moment(m).isBefore(this.dt2) &&
-            Moment(m).isSame(this.mY, 'month')) {
+                Moment(m).isBefore(this.dt2) &&
+                Moment(m).isSame(this.mY, 'month')) {
                 style.range = true;
             } else {
                 style.range = false;
+            }
+
+            if (!Moment(m).isSame(this.mY, 'month')) {
+                style['other-month'] = true;
+            } else {
+                style['other-month'] = false;
             }
 
             return style;
