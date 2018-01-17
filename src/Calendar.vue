@@ -32,7 +32,7 @@ const COLUMNS = 7;
 export default {
     props: {
         'date': Object,
-        'daterange': Boolean,
+        'monthYear': Object,
         'prev': Boolean,
         'next': Boolean
     },
@@ -40,21 +40,19 @@ export default {
         return {
             weeks: [],
             isActive: false,
-            selectedDate: {},
-            currMonth: '',
-            currYear: '',
             days: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-            dt: {}
+            dt: {},
+            mY: {}
         }
     },
     created() {
         this.dt = this.date;
-        this.fillCalendar(Moment(this.dt));
+        this.mY = this.monthYear;
+        this.fillCalendar(Moment(this.mY));
     },
     methods: {
         fillCalendar: function(m) {
-            this.currMonth = m.format('MMM');
-            this.currYear = m.format('Y');
+            console.log("sd: " + JSON.stringify(this.selectedDate));
             this.weeks = [];
             m = m.startOf('month').startOf('week').clone();
 
@@ -67,8 +65,8 @@ export default {
                 var week = []
                 for (var j = 0; j < COLUMNS; j++) {
                     isToday = Moment().isSame(m, 'day');
-                    isOtherMonth = m.isSame(this.dt, 'month') ? false : true;
-                    isSelected = m.isSame(this.selectedDate) ? true : false;;
+                    isOtherMonth = m.isSame(this.mY, 'month') ? false : true;
+                    isSelected = m.isSame(this.dt) ? true : false;
 
                     week.push({
                         moment: m.toObject(),
@@ -86,25 +84,25 @@ export default {
             }
         },
         nextMonth: function() {
-            var m = Moment(this.dt);
+            var m = Moment(this.mY);
             m.add(1, 'month');
-            this.dt = m.toObject();
-            this.fillCalendar(m);
-            this.$emit('nextMonth', this.dt);
+            this.mY = m.toObject()
+            this.fillCalendar(Moment(this.mY));
+            this.$emit('nextMonth', this.mY);
         },
         prevMonth: function() {
-            var m = Moment(this.dt);
+            var m = Moment(this.mY);
             m.subtract(1, 'month');
-            this.dt = m.toObject();
-            this.fillCalendar(m);
-            this.$emit('prevMonth', this.dt);
+            this.mY = m.toObject();
+            this.fillCalendar(Moment(this.mY));
+            this.$emit('prevMonth', this.mY);
         },
         onSelect: function(d) {
             this.unSelectOthers(); 
             //select this
             d.style.selected = true;
-            this.selectedDate = d.moment;
-            this.$emit('dateSelected', d.moment);
+            this.dt = d.moment;
+            this.$emit('dateSelected', this.dt);
         },
         unSelectOthers: function() {
             for (var i = 0; i < this.weeks.length; i++) {
@@ -118,7 +116,7 @@ export default {
             for (var i = 0; i < this.weeks.length; i++) {
                 for (var j = 0; j < this.weeks[i].length; j++) {
                     var o = this.weeks[i][j];
-                    if (Moment(o.moment).isAfter(this.selectedDate) &&
+                    if (Moment(o.moment).isAfter(this.dt) &&
                         Moment(o.moment).isBefore(d.moment)) {
                         o.style.range = true;
                     } else {
@@ -131,14 +129,41 @@ export default {
         }
     },
     watch: {
-        date: function(n, o) {
-            if (Moment(n).isSame(Moment(this.dt))) {
+        monthYear: function(n, o) {
+            if (Moment(n).isSame(Moment(o))) {
+                console.log('no-op');
                 return;
             }
-            console.log('old date: ' + o.months + '-' + o.years);
-            console.log('new date: ' + n.months + '-' + n.years);
-            this.dt = Moment(n).toObject();;
-            this.fillCalendar(Moment(this.dt));
+            this.mY = Moment(n).toObject();;
+            this.fillCalendar(Moment(this.mY));
+        },
+        date: function(n, o) {
+            if (Moment(n).isSame(Moment(o))) {
+                console.log('no-op');
+                return;
+            }
+
+            //update selected date and range formatting
+            for (var i = 0; i < this.weeks.length; i++) {
+                for (var j = 0; j < this.weeks[i].length; j++) {
+                    var o = this.weeks[i][j];
+                    if (o.style.selected) {
+                        if (!Moment(o.moment).isSame(n)) {
+                            o.style.selected = false;
+                        }
+                    }
+
+                    o.style.range = false;
+                }
+            }
+        }
+    },
+    computed: {
+        currMonth: function() {
+            return Moment(this.mY).format('MMM');
+        },
+        currYear: function() {
+            return Moment(this.mY).format('Y');
         }
     }
 }

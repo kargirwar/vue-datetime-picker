@@ -8,29 +8,30 @@
                 .row(v-if="daterange")
                     .col-sm-6
                         calendar(
-                            v-on:dateSelected="onDate1Select"
-                            v-on:prevMonth="onPrevMonth"
-                            :date="dt1"
-                            :prev="daterange"
-                            :next="!daterange"
+                                v-on:dateSelected="onDate1Select"
+                                v-on:prevMonth="onPrevMonth"
+                                :date="dt1"
+                                :monthYear="mY1"
+                                :prev="daterange"
+                                :next="!daterange"
                             )
                     .col-sm-6
                         calendar(
-                            v-on:dateSelected="onDate2Select"
-                            v-on:nextMonth="onNextMonth"
-                            :date="dt2"
-                            :daterange="daterange"
-                            :prev="!daterange"
-                            :next="daterange"
+                                v-on:dateSelected="onDate2Select"
+                                v-on:nextMonth="onNextMonth"
+                                :date="dt2"
+                                :monthYear="mY2"
+                                :prev="!daterange"
+                                :next="daterange"
                             )
                 .row(v-if="!daterange")
                     .col-sm-12
                         calendar(
-                            v-on:dateSelected="onDateSelect"
-                            :daterange="daterange"
-                            :date="dt"
-                            :prev="show"
-                            :next="show"
+                                v-on:dateSelected="onDateSelect"
+                                :date="dt"
+                                :monthYear="mY"
+                                :prev="show"
+                                :next="show"
                             )
 </template>
 
@@ -48,6 +49,9 @@ export default {
     data: function() {
         return {
             selectedDate: '',
+            mY1: {},
+            mY2: {},
+            mY: {},
             dt1: {},
             dt2: {},
             dt: {},
@@ -63,37 +67,42 @@ export default {
             //close the dropdown
             this.$refs.input.click();
         },
-        onDate1Select: function(date) {
-        },
-        onDate2Select: function(date) {
-        },
-        onPrevMonth: function(dt) {
-            this.dt1 = dt;
-            //bring back dt2 by a month
-            var m = Moment(this.dt2);
-            console.log("onPrevMonth: b " + this.dt2.months + "-" + this.dt2.years);
-            m.subtract(1, 'month');
-            this.dt2 = m.toObject();
-            console.log("onPrevMonth: a " + this.dt2.months + "-" + this.dt2.years);
-        },
-        onNextMonth: function(dt) {
+        onDate1Select: function(dt) {
+            //copy to next month
             this.dt2 = dt;
-            //advance dt1 by a month
-            var m = Moment(this.dt1);
+        },
+        onDate2Select: function(dt) {
+            //copy to prev month
+            this.dt1 = dt;
+        },
+        onPrevMonth: function(mY) {
+            this.mY1 = mY;
+            console.log("onPrevMonth: " + this.mY1.months + '-' + this.mY1.years);
+            var m = Moment(this.mY1);
             m.add(1, 'month');
-            this.dt1 = m.toObject();
+            this.mY2 = m.toObject();
+            console.log("onPrevMonth: " + this.mY2.months + '-' + this.mY2.years);
+        },
+        onNextMonth: function(mY) {
+            this.mY2 = mY
+            //advance dt1 by a month
+            var m = Moment(this.mY1);
+            m.add(1, 'month');
+            this.mY1 = m.toObject();
         }
     },
     created: function() {
         if (this.daterange) {
             //two calendars, this and next month
             var m = Moment().clone();
-            this.dt1 = m.toObject();
-            this.dt2 = m.add(1, 'month').toObject();
+            this.mY1 = m.toObject();
+            //this.dt1 = m.toObject();
+            this.mY2 = m.add(1, 'month').toObject();
+            //this.dt2 = this.mY2;
             return;
         }
 
-        this.dt = Moment().clone().toObject();
+        this.mY = Moment().clone().toObject();
     }
 }
 </script>
