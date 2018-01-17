@@ -42,12 +42,16 @@ export default {
             weeks: [],
             isActive: false,
             days: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-            dt: {},
-            mY: {}
+            dt1: {},
+            dt2: {},
+            mY: {},
+            firstSelected: false,
+            secondSelected: false,
         }
     },
     created() {
-        this.dt = this.date;
+        this.dt1 = this.date;
+        this.dt2 = this.date;
         this.mY = this.monthYear;
         this.fillCalendar(Moment(this.mY));
     },
@@ -64,18 +68,13 @@ export default {
             for (var i = 0; i < ROWS; i++) {
                 var week = []
                 for (var j = 0; j < COLUMNS; j++) {
-                    isToday = Moment().isSame(m, 'day');
-                    isOtherMonth = m.isSame(this.mY, 'month') ? false : true;
-                    isSelected = m.isSame(this.dt) ? true : false;
+                    //isToday = Moment().isSame(m, 'day');
+                    //isOtherMonth = m.isSame(this.mY, 'month') ? false : true;
+                    //isSelected = (m.isSame(this.dt1) || m.isSame(this.dt2)) ? true : false;
 
                     week.push({
                         moment: m.toObject(),
-                        style: {
-                            'today': isToday,
-                            'other-month': isOtherMonth,
-                            'selected': isSelected,
-                            'range': false
-                        }
+                        style: this.getStyle(m.toObject())
                     });
                     m.add(1, 'days');
                 }
@@ -98,11 +97,7 @@ export default {
             this.$emit('prevMonth', this.mY);
         },
         onSelect: function(d) {
-            this.unSelectOthers(); 
-            //select this
-            d.style.selected = true;
-            this.dt = d.moment;
-            this.$emit('dateSelected', this.dt);
+            this.$emit('dateSelected', d.moment);
         },
         unSelectOthers: function() {
             for (var i = 0; i < this.weeks.length; i++) {
@@ -115,6 +110,27 @@ export default {
             this.$emit('hover', d.moment);
         },
         onMouseLeave: function(d) {
+        },
+        getStyle: function(m) {
+            var style = {};
+            if ((Moment(m).isSame(this.dt1) ||
+            Moment(m).isSame(this.dt2)) &&
+            (Moment(m).isSame(this.mY, 'month'))) {
+                style.selected = true;
+            } else {
+                style.selected = false;
+            }
+
+            //add range classes
+            if (Moment(m).isAfter(this.dt1) &&
+            Moment(m).isBefore(this.dt2) &&
+            Moment(m).isSame(this.mY, 'month')) {
+                style.range = true;
+            } else {
+                style.range = false;
+            }
+
+            return style;
         }
     },
     watch: {
@@ -123,27 +139,57 @@ export default {
             this.fillCalendar(Moment(this.mY));
         },
         date: function(n, o) {
-            this.dt = n;
-            console.log("new date: " + n.date + '-' + n.years);
+            if (!this.firstSelected) {
+                this.dt1 = n;
+                this.firstSelected = true;
+            } else if (!this.secondSelected) {
+                if (Moment(n).isAfter(this.dt1)) {
+                    this.dt2 = n;
+                    this.secondSelected = true;
+                } else {
+                    this.dt1 = n;
+                    this.dt2 = n;
+                }
+            } else {
+                //reset 
+                this.dt1 = n;
+                this.dt2 = n;
+                this.firstSelected = true;
+                this.secondSelected = false;
+            }
 
             //update selected date and range formatting
             for (var i = 0; i < this.weeks.length; i++) {
                 for (var j = 0; j < this.weeks[i].length; j++) {
-                    var o = this.weeks[i][j];
-                    if (o.style.selected) {
-                        if (!Moment(o.moment).isSame(n)) {
-                            o.style.selected = false;
+                        var d = this.weeks[i][j];
+                        //add selected classes
+                        if ((Moment(d.moment).isSame(this.dt1) ||
+                            Moment(d.moment).isSame(this.dt2)) &&
+                            (Moment(d.moment).isSame(this.mY, 'month'))) {
+                            d.style.selected = true;
+                        } else {
+                            d.style.selected = false;
                         }
-                    }
 
-                    o.style.range = false;
+                        //add range classes
+                        if (Moment(d.moment).isAfter(this.dt1) &&
+                            Moment(d.moment).isBefore(this.dt2) &&
+                            Moment(d.moment).isSame(this.mY, 'month')) {
+                                d.style.range = true;
+                        } else {
+                                d.style.range = false;
+                        }
                 }
             }
         },
 
         hover: function(n, o) {
+            if (Moment(this.dt2).isAfter(this.dt1)) {
+                return;
+            }
+
             //if selected date is in next month we don't show the range style
-            if (Moment(this.dt).isAfter(this.monthYear, 'month')) {
+            if (Moment(this.dt1).isAfter(this.monthYear, 'month')) {
                 console.log('hiding');
                 for (var i = 0; i < this.weeks.length; i++) {
                     for (var j = 0; j < this.weeks[i].length; j++) {
@@ -158,7 +204,7 @@ export default {
             for (var i = 0; i < this.weeks.length; i++) {
                 for (var j = 0; j < this.weeks[i].length; j++) {
                     var o = this.weeks[i][j];
-                    if (Moment(o.moment).isAfter(this.dt) &&
+                    if (Moment(o.moment).isAfter(this.dt1) &&
                         Moment(o.moment).isBefore(n) && Moment(o.moment).isSame(this.mY, 'month')) {
                         o.style.range = true;
                     } else {

@@ -28,6 +28,10 @@
                                 :prev="!daterange"
                                 :next="daterange"
                             )
+                .row(v-if="daterange")
+                    .col-sm-3
+                        b-button(:variant="'success'" :size="'sm'") Apply
+                        b-button(:variant="'outline-success'" :size="'sm'") Cancel
                 .row(v-if="!daterange")
                     .col-sm-12
                         calendar(
@@ -42,6 +46,8 @@
 <script>
 import Calendar from "./Calendar.vue";
 import Moment from 'moment';
+import bButton from 'bootstrap-vue/es/components/button/button';
+import bDropdown from 'bootstrap-vue/es/components/dropdown/dropdown';
 
 export default {
     props: {
@@ -64,7 +70,9 @@ export default {
         }
     },
     components: {
-        'calendar': Calendar
+        'calendar': Calendar,
+        'b-button': bButton,
+        'b-dropdown': bDropdown
     },
     methods: {
         onDateSelect: function(m) {
