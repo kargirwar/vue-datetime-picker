@@ -12,6 +12,7 @@
                     .col-sm-6
                         calendar(
                                 v-on:dateSelected="onDate1Select"
+                                v-on:datesUpdated="onDateUpdate"
                                 v-on:prevMonth="onPrevMonth"
                                 v-on:hover="onHover"
                                 :hover="hd"
@@ -32,9 +33,9 @@
                                 :next="daterange"
                             )
                 .row(v-if="daterange")
-                    .col-sm-3
-                        b-button(:variant="'success'" :size="'sm'") Apply
-                        b-button(:variant="'outline-success'" :size="'sm'") Cancel
+                    .col-sm-4
+                        button.btn.btn-success.btn-sm Apply
+                        button.btn.btn-outline-secondary.btn-sm Cancel
                 .row(v-if="!daterange")
                     .col-sm-12
                         calendar(
@@ -49,8 +50,6 @@
 <script>
 import Calendar from "./Calendar.vue";
 import Moment from 'moment';
-import bButton from 'bootstrap-vue/es/components/button/button';
-import bDropdown from 'bootstrap-vue/es/components/dropdown/dropdown';
 import Popper from 'popper.js';
 
 export default {
@@ -76,8 +75,6 @@ export default {
     },
     components: {
         'calendar': Calendar,
-        'b-button': bButton,
-        'b-dropdown': bDropdown
     },
     methods: {
         onDateSelect: function(m) {
@@ -112,6 +109,10 @@ export default {
         },
         onHover: function(hd) {
             this.hd = hd;
+        },
+        onDateUpdate: function(o) {
+            this.dt1 = o.date1;
+            this.dt2 = o.date2;
         }
     },
     computed: {
@@ -145,5 +146,8 @@ export default {
 <style scoped>
 .dropdown-menu {
     min-width: 600px;
+}
+.btn-success {
+    margin-right: 5px;
 }
 </style>

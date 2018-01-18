@@ -164,6 +164,8 @@ export default {
                 this.secondSelected = false;
             }
 
+            this.$emit('datesUpdated', {'date1' : this.dt1, 'date2': this.dt2});
+
             //update selected date and range formatting
             for (var i = 0; i < this.weeks.length; i++) {
                 for (var j = 0; j < this.weeks[i].length; j++) {
