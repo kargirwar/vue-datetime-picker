@@ -39,7 +39,6 @@ export default {
     },
     data: function() {
         return {
-            weeks: [],
             isActive: false,
             days: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
             dt1: {},
@@ -53,7 +52,7 @@ export default {
         this.dt1 = this.date;
         this.dt2 = this.date;
         this.mY = this.monthYear;
-        this.fillCalendar(Moment(this.mY));
+        //this.fillCalendar(Moment(this.mY));
     },
     methods: {
         fillCalendar: function(m) {
@@ -86,14 +85,14 @@ export default {
             var m = Moment(this.mY);
             m.add(1, 'month');
             this.mY = m.toObject()
-            this.fillCalendar(Moment(this.mY));
+            //this.fillCalendar(Moment(this.mY));
             this.$emit('nextMonth', this.mY);
         },
         prevMonth: function() {
             var m = Moment(this.mY);
             m.subtract(1, 'month');
             this.mY = m.toObject();
-            this.fillCalendar(Moment(this.mY));
+            //this.fillCalendar(Moment(this.mY));
             this.$emit('prevMonth', this.mY);
         },
         onSelect: function(d) {
@@ -142,7 +141,7 @@ export default {
     watch: {
         monthYear: function(n, o) {
             this.mY = Moment(n).toObject();;
-            this.fillCalendar(Moment(this.mY));
+            //this.fillCalendar(Moment(this.mY));
         },
         date: function(n, o) {
             if (!this.firstSelected) {
@@ -165,30 +164,6 @@ export default {
             }
 
             this.$emit('datesUpdated', {'date1' : this.dt1, 'date2': this.dt2});
-
-            //update selected date and range formatting
-            for (var i = 0; i < this.weeks.length; i++) {
-                for (var j = 0; j < this.weeks[i].length; j++) {
-                        var d = this.weeks[i][j];
-                        //add selected classes
-                        if ((Moment(d.moment).isSame(this.dt1) ||
-                            Moment(d.moment).isSame(this.dt2)) &&
-                            (Moment(d.moment).isSame(this.mY, 'month'))) {
-                            d.style.selected = true;
-                        } else {
-                            d.style.selected = false;
-                        }
-
-                        //add range classes
-                        if (Moment(d.moment).isAfter(this.dt1) &&
-                            Moment(d.moment).isBefore(this.dt2) &&
-                            Moment(d.moment).isSame(this.mY, 'month')) {
-                                d.style.range = true;
-                        } else {
-                                d.style.range = false;
-                        }
-                }
-            }
         },
 
         hover: function(n, o) {
@@ -223,6 +198,35 @@ export default {
         }
     },
     computed: {
+        weeks: function() {
+            var weeks = [];
+            var m = Moment(this.mY);
+            m = m.startOf('month').startOf('week').clone();
+
+            var isToday = false;
+            var isOtherMonth = false;
+            var isSelected = false;
+
+            //we want a 7x7 grid starting from the sunday of the week for the 1st of month
+            for (var i = 0; i < ROWS; i++) {
+                var week = []
+                for (var j = 0; j < COLUMNS; j++) {
+                    //isToday = Moment().isSame(m, 'day');
+                    //isOtherMonth = m.isSame(this.mY, 'month') ? false : true;
+                    //isSelected = (m.isSame(this.dt1) || m.isSame(this.dt2)) ? true : false;
+
+                    week.push({
+                        moment: m.toObject(),
+                        style: this.getStyle(m.toObject())
+                    });
+                    m.add(1, 'days');
+                }
+
+                weeks.push(week);
+            }
+
+            return weeks;
+        },
         currMonth: function() {
             return Moment(this.mY).format('MMM');
         },
