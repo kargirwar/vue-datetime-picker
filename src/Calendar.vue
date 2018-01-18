@@ -255,4 +255,10 @@ td:hover {
 .range {
     background: #ebf4f8;
 }
+
+th,
+td {
+    padding: 5px;
+    font-size: 14px;
+}
 </style>

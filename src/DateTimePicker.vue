@@ -1,10 +1,8 @@
 <template lang="pug">
     .datepicker-container
-        b-dropdown(variant='link', size='lg', no-caret='')
-            template(slot='button-content')
-                .col-sm-12
-                    input.form-control(:value="selectedDate" ref="input")
-            .container-fluid
+        input.form-control(:value="selectedDate" ref="input" @click="showPopper = !showPopper")
+        .dropdown-menu(ref="dropdown" :class="{show:showPopper}")
+            .container
                 .row(v-if="daterange")
                     .col-sm-6
                         input.form-control(:value="date1")
@@ -53,6 +51,7 @@ import Calendar from "./Calendar.vue";
 import Moment from 'moment';
 import bButton from 'bootstrap-vue/es/components/button/button';
 import bDropdown from 'bootstrap-vue/es/components/dropdown/dropdown';
+import Popper from 'popper.js';
 
 export default {
     props: {
@@ -72,6 +71,7 @@ export default {
             dt: {},
             hd: {},
             show: true,
+            showPopper: false
         }
     },
     components: {
@@ -122,9 +122,15 @@ export default {
             return Moment(this.dt2).format('D/MMM/Y');
         }
     },
+	mounted: function() {
+		var reference = this.$refs.input;
+		var popper = this.$refs.dropdown
+		var anotherPopper = new Popper(reference, popper, {});        
+	},
     created: function() {
-        if (this.daterange) {
-            //two calendars, this and next month
+
+		if (this.daterange) {
+			//two calendars, this and next month
             var m = Moment().clone();
             this.mY1 = m.toObject();
             this.mY2 = m.add(1, 'month').toObject();
@@ -137,4 +143,7 @@ export default {
 </script>
 
 <style scoped>
+.dropdown-menu {
+    min-width: 600px;
+}
 </style>
