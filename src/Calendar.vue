@@ -15,7 +15,10 @@
                     tbody
                         tr(v-for="week in weeks")
                             td(
-                                v-bind:class="d.style"
+                                v-bind:class=
+                                    "{selected: isSelected(d.moment),\
+                                    'other-month': isOtherMonth(d.moment),\
+                                    range: isInRange(d.moment)}"
                                 v-for="d in week"
                                 @click="onSelect(d)"
                                 @mouseover="onMouseOver(d)"
@@ -46,53 +49,50 @@ export default {
             mY: {},
             firstSelected: false,
             secondSelected: false,
+            range: []
         }
     },
     created() {
         this.dt1 = this.date;
         this.dt2 = this.date;
+        this.range = [this.dt1, this.dt2];
         this.mY = this.monthYear;
-        //this.fillCalendar(Moment(this.mY));
     },
     methods: {
-        fillCalendar: function(m) {
-            this.weeks = [];
-            m = m.startOf('month').startOf('week').clone();
-
-            var isToday = false;
-            var isOtherMonth = false;
-            var isSelected = false;
-
-            //we want a 7x7 grid starting from the sunday of the week for the 1st of month
-            for (var i = 0; i < ROWS; i++) {
-                var week = []
-                for (var j = 0; j < COLUMNS; j++) {
-                    //isToday = Moment().isSame(m, 'day');
-                    //isOtherMonth = m.isSame(this.mY, 'month') ? false : true;
-                    //isSelected = (m.isSame(this.dt1) || m.isSame(this.dt2)) ? true : false;
-
-                    week.push({
-                        moment: m.toObject(),
-                        style: this.getStyle(m.toObject())
-                    });
-                    m.add(1, 'days');
-                }
-
-                this.weeks.push(week);
+        isOtherMonth: function(m) {
+            if (!Moment(m).isSame(this.mY, 'month')) {
+                return true;
+            } else {
+                return false;
             }
+        },
+        isSelected: function(m) {
+            if ((Moment(m).isSame(this.dt1) ||
+            Moment(m).isSame(this.dt2)) &&
+            (Moment(m).isSame(this.mY, 'month'))) {
+                return true;
+            }
+
+            return false;
+        },
+        isInRange: function(m) {
+            if (Moment(m).isAfter(this.dt1) &&
+                Moment(m).isBefore(this.dt2) &&
+                Moment(m).isSame(this.mY, 'month')) {
+                return true;
+            }
+            return false;
         },
         nextMonth: function() {
             var m = Moment(this.mY);
             m.add(1, 'month');
             this.mY = m.toObject()
-            //this.fillCalendar(Moment(this.mY));
             this.$emit('nextMonth', this.mY);
         },
         prevMonth: function() {
             var m = Moment(this.mY);
             m.subtract(1, 'month');
             this.mY = m.toObject();
-            //this.fillCalendar(Moment(this.mY));
             this.$emit('prevMonth', this.mY);
         },
         onSelect: function(d) {
@@ -110,38 +110,10 @@ export default {
         },
         onMouseLeave: function(d) {
         },
-        getStyle: function(m) {
-            var style = {};
-            if ((Moment(m).isSame(this.dt1) ||
-                Moment(m).isSame(this.dt2)) &&
-                (Moment(m).isSame(this.mY, 'month'))) {
-                style.selected = true;
-            } else {
-                style.selected = false;
-            }
-
-            //add range classes
-            if (Moment(m).isAfter(this.dt1) &&
-                Moment(m).isBefore(this.dt2) &&
-                Moment(m).isSame(this.mY, 'month')) {
-                style.range = true;
-            } else {
-                style.range = false;
-            }
-
-            if (!Moment(m).isSame(this.mY, 'month')) {
-                style['other-month'] = true;
-            } else {
-                style['other-month'] = false;
-            }
-
-            return style;
-        }
     },
     watch: {
         monthYear: function(n, o) {
             this.mY = Moment(n).toObject();;
-            //this.fillCalendar(Moment(this.mY));
         },
         date: function(n, o) {
             if (!this.firstSelected) {
@@ -165,59 +137,22 @@ export default {
 
             this.$emit('datesUpdated', {'date1' : this.dt1, 'date2': this.dt2});
         },
-
-        hover: function(n, o) {
-            if (Moment(this.dt2).isAfter(this.dt1)) {
-                return;
-            }
-
-            //if selected date is in next month we don't show the range style
-            if (Moment(this.dt1).isAfter(this.monthYear, 'month')) {
-                console.log('hiding');
-                for (var i = 0; i < this.weeks.length; i++) {
-                    for (var j = 0; j < this.weeks[i].length; j++) {
-                        var o = this.weeks[i][j];
-                        o.style.range = false;
-                    }
-                }
-                return;
-            }
-            //apply range style to all intervening days
-            console.log('hover');
-            for (var i = 0; i < this.weeks.length; i++) {
-                for (var j = 0; j < this.weeks[i].length; j++) {
-                    var o = this.weeks[i][j];
-                    if (Moment(o.moment).isAfter(this.dt1) &&
-                        Moment(o.moment).isBefore(n) && Moment(o.moment).isSame(this.mY, 'month')) {
-                        o.style.range = true;
-                    } else {
-                        o.style.range = false;
-                    }
-                }
-            }
-        }
     },
     computed: {
+        inRange: function() {
+            return false;
+        },
         weeks: function() {
             var weeks = [];
             var m = Moment(this.mY);
             m = m.startOf('month').startOf('week').clone();
 
-            var isToday = false;
-            var isOtherMonth = false;
-            var isSelected = false;
-
             //we want a 7x7 grid starting from the sunday of the week for the 1st of month
             for (var i = 0; i < ROWS; i++) {
                 var week = []
                 for (var j = 0; j < COLUMNS; j++) {
-                    //isToday = Moment().isSame(m, 'day');
-                    //isOtherMonth = m.isSame(this.mY, 'month') ? false : true;
-                    //isSelected = (m.isSame(this.dt1) || m.isSame(this.dt2)) ? true : false;
-
                     week.push({
                         moment: m.toObject(),
-                        style: this.getStyle(m.toObject())
                     });
                     m.add(1, 'days');
                 }
