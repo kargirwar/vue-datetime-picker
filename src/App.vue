@@ -3,7 +3,10 @@
         .row
             .col-sm-2
                 //TODO:date-time-picker should fill the container. Does not work at this time
-                date-time-picker(:daterange="daterange")
+                date-time-picker(
+                    :daterange="daterange"
+                    v-on:dateChanged="onDateChange"
+                )
 </template>
 
 <script>
@@ -13,6 +16,11 @@ export default {
     data: function() {
         return {
             daterange: true
+        }
+    },
+    methods: {
+        onDateChange: function(o) {
+            console.log(JSON.stringify(o));
         }
     },
     components: {

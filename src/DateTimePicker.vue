@@ -34,8 +34,8 @@
                             )
                 .row(v-if="daterange")
                     .col-sm-4
-                        button.btn.btn-success.btn-sm Apply
-                        button.btn.btn-outline-secondary.btn-sm Cancel
+                        button.btn.btn-success.btn-sm(@click="onApply") Apply
+                        button.btn.btn-outline-secondary.btn-sm(@click="onCancel") Cancel
                 .row(v-if="!daterange")
                     .col-sm-12
                         calendar(
@@ -61,7 +61,6 @@ export default {
     },
     data: function() {
         return {
-            selectedDate: '',
             mY1: {},
             mY2: {},
             mY: {},
@@ -113,6 +112,14 @@ export default {
         onDateUpdate: function(o) {
             this.dt1 = o.date1;
             this.dt2 = o.date2;
+        },
+        onApply: function() {
+            this.showPopper = false;
+            this.$emit('dateChanged', {dt1: this.dt1, dt2: this.dt2});
+        },
+
+        onCancel: function() {
+            this.showPopper = false;
         }
     },
     computed: {
@@ -121,6 +128,9 @@ export default {
         },
         date2: function() {
             return Moment(this.dt2).format('D/MMM/Y');
+        },
+        selectedDate: function() {
+            return Moment(this.dt1).format('D/MMM/Y') + '-' + Moment(this.dt2).format('D/MMM/Y');
         }
     },
 	mounted: function() {
