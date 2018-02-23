@@ -69,7 +69,8 @@ export default {
             dt: {},
             hd: {},
             show: true,
-            showPopper: false
+            showPopper: false,
+            selectedDate: ''
         }
     },
     components: {
@@ -77,7 +78,7 @@ export default {
     },
     methods: {
         onDateSelect: function(m) {
-            this.selectedDate = Moment(m).format('Y-MM-DD');
+            //this.selectedDate = Moment(m).format('Y-MM-DD');
             //close the dropdown
             this.$refs.input.click();
         },
@@ -116,6 +117,7 @@ export default {
         onApply: function() {
             this.showPopper = false;
             this.$emit('dateChanged', {dt1: this.dt1, dt2: this.dt2});
+            this.selectedDate = Moment(this.dt1).format('Y-MM-D') + '-' + Moment(this.dt2).format('Y-MM-D');
         },
 
         onCancel: function() {
@@ -129,9 +131,9 @@ export default {
         date2: function() {
             return Moment(this.dt2).format('D/MMM/Y');
         },
-        selectedDate: function() {
-            return Moment(this.dt1).format('D/MMM/Y') + '-' + Moment(this.dt2).format('D/MMM/Y');
-        }
+        //selectedDate: function() {
+            //return Moment(this.dt1).format('D/MMM/Y') + '-' + Moment(this.dt2).format('D/MMM/Y');
+        //}
     },
 	mounted: function() {
 		var reference = this.$refs.input;
